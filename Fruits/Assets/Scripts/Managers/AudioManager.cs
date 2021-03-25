@@ -31,9 +31,9 @@ public class AudioManager : MonoBehaviour
         }
     }
 
-    private void Start()
+    void Start()
     {
-        
+        AudioManager.instance.Play("Soundtrack");
     }
 
     public void Play(string name)

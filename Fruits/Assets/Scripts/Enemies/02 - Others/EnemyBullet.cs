@@ -50,6 +50,7 @@ public class EnemyBullet : MonoBehaviour
     void KnockBackPlayer()
     {
         Player.isAlive = false;
+        Player.isDead = true;
         Player.knockBackCount = Player.knockBackLenght;
 
         if (playerPos.position.x < transform.position.x)

@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
+    public static Player instance;
+
     [Header("Main Variables")]
     SpriteRenderer sprite;
     public static Rigidbody2D body;
@@ -40,6 +42,7 @@ public class Player : MonoBehaviour
     [Header("Life System")]
     public static bool isInvulnerable = false;
     public static bool isAlive;
+    public static bool isDead = false;
 
     //private int lifes = 3;
 
@@ -51,10 +54,15 @@ public class Player : MonoBehaviour
 
     [Header("Others")]
     public ParticleSystem DustParticle;
-
     private bool canSpawnDust;
+    private bool canPlayHitSound = true, canPlayExplosionSound = true;
+
     private void Awake()
     {
+        instance = this;
+
+        isDead = false;
+
         sprite = GetComponent<SpriteRenderer>();
         body = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
@@ -62,6 +70,7 @@ public class Player : MonoBehaviour
     void Start()
     {
         StartCoroutine(AppearTime());
+
         knockBackCount = 0;
         isAlive = true;
         //GameManager.isStart = true;
@@ -280,22 +289,38 @@ public class Player : MonoBehaviour
         ShakeCam.canShakeCam = true;
         move = 0f;
 
-        AudioManager.instance.Play("Damage");
+        if(canPlayHitSound)
+        {
+            AudioManager.instance.Play("Damage");
+            canPlayHitSound = false;
+        }
         anim.SetTrigger("wasHited");
         GameManager.isStart = false;
         //isAlive = false;
 
-        yield return new WaitForSeconds(0.3f);
-        AudioManager.instance.Play("Explosion");
+        yield return new WaitForSeconds(0.3f);    
+        if(canPlayExplosionSound)
+        {
+            AudioManager.instance.Play("Explosion");
+            canPlayExplosionSound = false;
+        }
         anim.SetTrigger("Desappear");
         Destroy(gameObject,0.5f);
     }
     IEnumerator AppearTime()
     {
-        yield return new WaitForSeconds(0.05f);
         AudioManager.instance.Play("Appear");
-        yield return new WaitForSeconds(0.6f);
-        GameManager.isStart = true;
+        yield return new WaitForSeconds(0.4f);
+        
+        if(TutorialMenu.instance != null)
+        {
+            if(TutorialMenu.instance.ShowedTutorial)
+                GameManager.isStart = true;
+        }
+        else
+        {
+            GameManager.isStart = true;
+        }
     }
 
     //Others

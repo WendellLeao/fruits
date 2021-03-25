@@ -34,6 +34,7 @@ public class SnailShell : EnemyController
         if (collision.gameObject.CompareTag("Player") && Player.isAlive && !isInvunerable && !canToDeath)
         {
             isDashing = true;
+            AudioManager.instance.Play("Damage");
             StartCoroutine(CanDeathing());
 
             if (transform.position.x < playerPos.position.x)
@@ -74,6 +75,7 @@ public class SnailShell : EnemyController
     IEnumerator CanFlip()
     {
         anim.SetTrigger("wasHitedWall");
+        AudioManager.instance.Play("Damage");
         yield return new WaitForSeconds(1f);
         canFlip = true;
     }

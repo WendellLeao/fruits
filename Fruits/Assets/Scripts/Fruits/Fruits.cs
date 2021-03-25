@@ -32,6 +32,7 @@ public class Fruits : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Player") && canGet == 0 && Player.isAlive)
         {
+            AudioManager.instance.Play("Pickup");
             GameManager.fruitQtd ++;
             canGet = 1;
         }

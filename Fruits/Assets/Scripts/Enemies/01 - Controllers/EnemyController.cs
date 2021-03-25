@@ -30,6 +30,7 @@ public class EnemyController : MonoBehaviour
     protected bool wasHited;
     private bool isStomped;
     public int health;
+    private bool canPlayExplosionSound = true;
 
     void Awake()
     {
@@ -96,6 +97,7 @@ public class EnemyController : MonoBehaviour
     protected void KnockBackPlayer()
     {
         Player.isAlive = false;
+        Player.isDead = true;
         Player.knockBackCount = Player.knockBackLenght;
 
         if (playerPos.position.x < transform.position.x)
@@ -111,6 +113,7 @@ public class EnemyController : MonoBehaviour
     {
         //Knock up player
         AudioManager.instance.Play("Jump");
+        AudioManager.instance.Play("Damage");
         Player.anim.SetTrigger("isDoubleJumping");
         Player.knockJump = true;
 
@@ -130,8 +133,7 @@ public class EnemyController : MonoBehaviour
 
         if (health <= 0)
         {
-            anim.SetTrigger("wasHited");
-            Destroy(gameObject, 0.1f);
+            StartCoroutine(Destroy());
         }
         else
         {
@@ -157,5 +159,19 @@ public class EnemyController : MonoBehaviour
                 isStomped = false;
             }
         }
+    }
+
+    IEnumerator Destroy()
+    {
+        anim.SetTrigger("wasHited");
+        
+        if (canPlayExplosionSound)
+        {
+            AudioManager.instance.Play("Explosion");
+            canPlayExplosionSound = false;
+        }
+
+        yield return new WaitForSeconds(0.1f);
+        Destroy(gameObject);
     }
 }

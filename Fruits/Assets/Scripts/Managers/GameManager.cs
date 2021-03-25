@@ -24,6 +24,9 @@ public class GameManager : MonoBehaviour
     [Header("Fruits")]
     public static int fruitQtd;
     public static int howManyNeeds;
+    [SerializeField] private GameObject finalGameMenu;
+    private bool canSpawn = true;
+    private bool gameWasFinished = false;
 
     private void Awake()
     {
@@ -33,41 +36,59 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        isStart = true;
         fruitQtd = 0;
 
         if (startFacingRight)
         {
             canFlipOnStart = true;
         }
-
-        numInt = Random.Range(0, mainCharacters.Length);
-        var projectile = Instantiate(mainCharacters[numInt], spawnPlayer.transform.position, Quaternion.identity);
-
     }
     void Update()
     {
-        //Until finish the project
-        /*if (Input.anyKey && isMenu)
+        if(TutorialMenu.instance != null)
         {
-            isStart = true;
-            Player.isAlive = true;
-            SceneManager.LoadScene("SampleScene");
-            isMenu = false;
-        }*/
+            if(TutorialMenu.instance.ShowedTutorial)
+                SpawnPlayer();
+        }
+        else
+            SpawnPlayer();
 
         if (fruitQtd >= howManyNeeds && Player.isAlive)
         {
             StartCoroutine(NextLevel());
             fruitQtd = 0;
-
         }
 
-        if(!isStart && !Player.isAlive)
+        if(Player.instance != null)
         {
-            Invoke("ReloadLevel", 1.3f);
-            fruitQtd = 0;
-           // howManyNeeds = 0;
+            if(Player.isDead)
+            {
+                Invoke("ReloadLevel", 1.3f);
+                fruitQtd = 0;
+                // howManyNeeds = 0;
+            }
+        }
+
+        if(gameWasFinished)
+        {
+            Time.timeScale = 0f;
+            isStart = false;
+         
+            if(Input.GetKeyDown(KeyCode.Space))
+            {
+                Debug.Log("quit");
+                Application.Quit();
+            }
+        }
+    }
+
+    private void SpawnPlayer()
+    {
+        if(canSpawn)
+        {
+            numInt = Random.Range(0, mainCharacters.Length);
+            var playerClone = Instantiate(mainCharacters[numInt], spawnPlayer.transform.position, Quaternion.identity);
+            canSpawn = false;
         }
     }
 
@@ -79,7 +100,17 @@ public class GameManager : MonoBehaviour
 
     IEnumerator NextLevel()
     {
-        yield return new WaitForSeconds(1f);
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
+        yield return new WaitForSecondsRealtime(1f);
+
+        if (SceneManager.GetActiveScene().name == "LevelTest4")
+        {
+            finalGameMenu.SetActive(true);
+            
+            gameWasFinished = true;
+        }
+        else
+        {
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
+        }
     }
 }
